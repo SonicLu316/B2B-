@@ -28,7 +28,11 @@ const STEPS_PER_WO = [
 const SHIP_TO_LIST = ["AS5645", "AS5752", "ASGUS6", "TG0075", "TG0083", "TG0099"];
 
 const getTodayDate = () => {
-  return new Date().toISOString().split('T')[0];
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}/${month}/${day}`;
 };
 
 const formatDate = (dateString: string | Date | undefined) => {
@@ -432,8 +436,8 @@ export default function App() {
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-10">
                       {[
                         { label: "客戶編號", value: activeWO?.customer_id, key: "customer_id", type: "text" },
-                        { label: "生產日期", value: activeWO?.prod_date, key: "prod_date", type: "date" },
-                        { label: "檢驗日期", value: activeWO?.inspect_date, key: "inspect_date", type: "date" },
+                        { label: "生產日期", value: activeWO?.prod_date?.replace(/-/g, '/'), key: "prod_date", type: "text" },
+                        { label: "檢驗日期", value: activeWO?.inspect_date?.replace(/-/g, '/'), key: "inspect_date", type: "text" },
                         { label: "尺寸", value: activeWO?.size, key: "size", type: "text" },
                         { label: "產品顏色", value: activeWO?.color, key: "color", type: "text" },
                         { label: "生產數量", value: activeWO?.prod_qty, key: "prod_qty", type: "number" },
