@@ -31,6 +31,16 @@ const getTodayDate = () => {
   return new Date().toISOString().split('T')[0];
 };
 
+const formatDate = (dateString: string | Date | undefined) => {
+  if (!dateString) return "";
+  const d = new Date(dateString);
+  if (isNaN(d.getTime())) return "";
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}/${month}/${day}`;
+};
+
 const createInitialWorkOrders = () => ([
   {
     wo_id: "WO-01",
@@ -393,8 +403,8 @@ export default function App() {
                       <button key={order.id} onClick={() => { setCurrentPoId(order.id); setViewMode('edit'); setActiveWoIndex(0); setActiveStepIndex(0); }} className="bg-white p-4 md:p-8 rounded-[24px] md:rounded-[40px] shadow-sm border border-slate-100 text-left hover:shadow-2xl hover:-translate-y-2 transition-all flex flex-col h-[200px] md:h-[280px] relative group">
                         <div className="flex justify-between items-start mb-4 md:mb-6 shrink-0"><div className={`p-2.5 md:p-4 rounded-xl md:rounded-3xl ${order.status === 'SUBMITTED' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600'}`}><ClipboardList className="w-4.5 h-4.5 md:w-8 md:h-8" /></div><span className={`px-2 md:px-4 py-0.5 md:py-1.5 rounded-full text-[7px] md:text-[10px] font-black uppercase tracking-widest ${order.status === 'SUBMITTED' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>{order.status === 'SUBMITTED' ? '已結案' : '作業中'}</span></div>
                         <h4 className="font-black text-base md:text-4xl text-slate-800 mb-2 md:mb-4 truncate w-full py-1 leading-normal shrink-0">{order.id}</h4>
-                        <div className="flex justify-between items-center mb-auto w-full"><p className="text-[9px] md:text-sm text-slate-400 font-bold uppercase tracking-tighter">{new Date(order.createdAt).toLocaleDateString()}</p><span className="text-[8px] md:text-xs font-black bg-slate-100 px-1.5 md:px-3 py-0.5 md:py-1 rounded md:rounded-lg text-slate-500">{order.shipTo || "N/A"}</span></div>
-                        <div className="mt-4 md:mt-8 space-y-1.5 md:space-y-3 shrink-0"><div className="flex justify-between text-[8px] md:text-xs font-black uppercase text-slate-400"><span>完成度</span><span>{doneWOs}/{totalWOs} WOs</span></div><div className="w-full h-1 md:h-3 bg-slate-100 rounded-full overflow-hidden"><div className={`h-full rounded-full transition-all duration-1000 ${order.status === 'SUBMITTED' ? 'bg-green-500' : 'bg-blue-600'}`} style={{ width: `${progress}%` }} /></div></div>
+                        <div className="flex justify-between items-center mb-auto w-full"><p className="text-[9px] md:text-sm text-slate-400 font-bold uppercase tracking-tighter">{formatDate(order.createdAt)}</p><span className="text-[8px] md:text-xs font-black bg-slate-100 px-1.5 md:px-3 py-0.5 md:py-1 rounded md:rounded-lg text-slate-500">{order.shipTo || "N/A"}</span></div>
+                        <div className="mt-4 md:mt-8 space-y-1.5 md:space-y-3 shrink-0"><div className="flex justify-between text-[10px] md:text-xs font-black uppercase text-slate-400"><span>完成度</span><span>{doneWOs}/{totalWOs} WOs</span></div><div className="w-full h-1 md:h-3 bg-slate-100 rounded-full overflow-hidden"><div className={`h-full rounded-full transition-all duration-1000 ${order.status === 'SUBMITTED' ? 'bg-green-500' : 'bg-blue-600'}`} style={{ width: `${progress}%` }} /></div></div>
                       </button>
                     );
                   }) : <div className="col-span-full py-16 md:py-32 text-center text-slate-300"><Filter className="w-8 h-8 md:w-16 md:h-16 mx-auto mb-2 md:mb-6 opacity-30" /><p className="text-xs md:text-2xl font-black">查無資料</p></div>}
@@ -412,6 +422,7 @@ export default function App() {
                       <p className="text-slate-400 font-black text-[9px] md:text-base tracking-widest uppercase flex items-center gap-1.5 md:gap-3"><Navigation className="w-2.5 h-2.5 md:w-4 md:h-4 text-blue-500" /> 工單: {activeWO?.wo_id}</p>
                     </div>
                     <div className="flex gap-1.5 md:gap-3 items-center bg-white px-3 md:px-6 py-1.5 md:py-4 rounded-full shadow-sm border border-slate-100 self-start md:self-auto">
+                      <span className="text-[10px] md:hidden font-black text-slate-400 mr-1">進度 {activeStepIndex + 1}/4</span>
                       {[0, 1, 2, 3].map(i => <div key={i} className={`h-1.5 md:h-3 rounded-full transition-all duration-700 ${i === activeStepIndex ? 'bg-blue-600 w-6 md:w-12 shadow' : (activeWO?.steps?.[i]?.checked ? 'bg-green-500 w-1.5 md:w-3' : 'bg-slate-200 w-1.5 md:w-3')}`} />)}
                     </div>
                   </div>
@@ -466,7 +477,10 @@ export default function App() {
               {/* Footer - 放大 */}
               <footer className="bg-white/95 backdrop-blur-xl border-t p-3 md:p-8 flex gap-3 md:gap-8 z-40 sticky bottom-0 shadow-[0_-8px_30px_rgba(0,0,0,0.04)]">
                 <div className="max-w-4xl mx-auto w-full flex gap-3 md:gap-6">
-                  <button onClick={() => activeStepIndex > 0 ? setActiveStepIndex(prev => prev - 1) : setViewMode('home')} className="px-5 md:px-12 py-2.5 md:py-6 flex items-center gap-2 md:gap-5 font-black text-slate-400 hover:text-slate-900 active:scale-90 transition-all text-xs md:text-xl border border-transparent rounded-xl md:rounded-[32px]"><ChevronLeft className="w-4 h-4 md:w-8 md:h-8" /> <span className="hidden sm:inline">Back</span></button>
+                  <button onClick={() => activeStepIndex > 0 ? setActiveStepIndex(prev => prev - 1) : setViewMode('home')} className="px-5 md:px-12 py-2.5 md:py-6 flex items-center gap-2 md:gap-5 font-black text-slate-400 hover:text-slate-900 active:scale-90 transition-all text-xs md:text-xl border border-transparent rounded-xl md:rounded-[32px]">
+                    {activeStepIndex === 0 ? <RotateCcw className="w-4 h-4 md:w-8 md:h-8" /> : <ChevronLeft className="w-4 h-4 md:w-8 md:h-8" />}
+                    <span className="inline">{activeStepIndex === 0 ? '退出' : '上一步'}</span>
+                  </button>
                   {activeStepIndex < 3 ? (
                     <button onClick={() => setActiveStepIndex(prev => prev + 1)} disabled={!activeStep.photoUrl || !activeStep.checked} className="flex-1 py-2.5 md:py-6 bg-blue-600 text-white rounded-xl md:rounded-[32px] font-black text-sm md:text-3xl shadow-lg shadow-blue-100 active:scale-[0.98] transition-all disabled:bg-slate-200 disabled:shadow-none">下一檢驗關卡</button>
                   ) : (
