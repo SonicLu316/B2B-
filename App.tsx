@@ -233,7 +233,12 @@ export default function App() {
   const updateActiveWOField = (field: string, value: any) => {
     if (!workOrders[activeWoIndex]) return;
     const newOrders = [...workOrders];
-    newOrders[activeWoIndex] = { ...newOrders[activeWoIndex], [field]: value };
+    // 日期欄位需要將 - 轉換成 / 以維持 yyyy/MM/dd 格式
+    let formattedValue = value;
+    if (field === 'prod_date' || field === 'inspect_date') {
+      formattedValue = value?.replace(/-/g, '/');
+    }
+    newOrders[activeWoIndex] = { ...newOrders[activeWoIndex], [field]: formattedValue };
     setWorkOrders(newOrders);
     syncToCloud(newOrders);
   };
@@ -436,8 +441,8 @@ export default function App() {
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-10">
                       {[
                         { label: "客戶編號", value: activeWO?.customer_id, key: "customer_id", type: "text" },
-                        { label: "生產日期", value: activeWO?.prod_date?.replace(/-/g, '/'), key: "prod_date", type: "text" },
-                        { label: "檢驗日期", value: activeWO?.inspect_date?.replace(/-/g, '/'), key: "inspect_date", type: "text" },
+                        { label: "生產日期", value: activeWO?.prod_date?.replace(/\//g, '-'), key: "prod_date", type: "date" },
+                        { label: "檢驗日期", value: activeWO?.inspect_date?.replace(/\//g, '-'), key: "inspect_date", type: "date" },
                         { label: "尺寸", value: activeWO?.size, key: "size", type: "text" },
                         { label: "產品顏色", value: activeWO?.color, key: "color", type: "text" },
                         { label: "生產數量", value: activeWO?.prod_qty, key: "prod_qty", type: "number" },
