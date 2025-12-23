@@ -403,20 +403,50 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+                <div className="flex flex-col gap-3 md:gap-4">
                   {filteredOrdersSummary.length > 0 ? filteredOrdersSummary.map(order => {
                     const totalWOs = order.workOrders?.length || 0;
                     const doneWOs = order.workOrders?.filter((wo: any) => wo.steps?.every((s: any) => s.photoUrl && s.checked)).length || 0;
-                    const progress = totalWOs > 0 ? (doneWOs / totalWOs) * 100 : 0;
+                    const progress = totalWOs > 0 ? Math.round((doneWOs / totalWOs) * 100) : 0;
                     return (
-                      <button key={order.id} onClick={() => { setCurrentPoId(order.id); setViewMode('edit'); setActiveWoIndex(0); setActiveStepIndex(0); }} className="bg-white p-4 md:p-8 rounded-[24px] md:rounded-[40px] shadow-sm border border-slate-100 text-left hover:shadow-2xl hover:-translate-y-2 transition-all flex flex-col h-[200px] md:h-[280px] relative group">
-                        <div className="flex justify-between items-start mb-4 md:mb-6 shrink-0"><div className={`p-2.5 md:p-4 rounded-xl md:rounded-3xl ${order.status === 'SUBMITTED' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600'}`}><ClipboardList className="w-4.5 h-4.5 md:w-8 md:h-8" /></div><span className={`px-2 md:px-4 py-0.5 md:py-1.5 rounded-full text-[7px] md:text-[10px] font-black uppercase tracking-widest ${order.status === 'SUBMITTED' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>{order.status === 'SUBMITTED' ? '已結案' : '作業中'}</span></div>
-                        <h4 className="font-black text-base md:text-4xl text-slate-800 mb-2 md:mb-4 truncate w-full py-1 leading-normal shrink-0">{order.id}</h4>
-                        <div className="flex justify-between items-center mb-auto w-full"><p className="text-[9px] md:text-sm text-slate-400 font-bold uppercase tracking-tighter">{formatDate(order.createdAt)}</p><span className="text-[8px] md:text-xs font-black bg-slate-100 px-1.5 md:px-3 py-0.5 md:py-1 rounded md:rounded-lg text-slate-500">{order.shipTo || "N/A"}</span></div>
-                        <div className="mt-4 md:mt-8 space-y-1.5 md:space-y-3 shrink-0"><div className="flex justify-between text-[10px] md:text-xs font-black uppercase text-slate-400"><span>完成度</span><span>{doneWOs}/{totalWOs} WOs</span></div><div className="w-full h-1 md:h-3 bg-slate-100 rounded-full overflow-hidden"><div className={`h-full rounded-full transition-all duration-1000 ${order.status === 'SUBMITTED' ? 'bg-green-500' : 'bg-blue-600'}`} style={{ width: `${progress}%` }} /></div></div>
+                      <button key={order.id} onClick={() => { setCurrentPoId(order.id); setViewMode('edit'); setActiveWoIndex(0); setActiveStepIndex(0); }}
+                        className="w-full bg-white p-3 md:p-6 rounded-xl md:rounded-[24px] shadow-sm border border-slate-100 flex items-center gap-3 md:gap-6 hover:shadow-lg hover:-translate-y-0.5 transition-all active:scale-[0.99] group text-left">
+
+                        {/* Status Indicator */}
+                        <div className={`w-1 md:w-1.5 self-stretch rounded-full ${order.status === 'SUBMITTED' ? 'bg-green-500' : 'bg-blue-500'}`} />
+
+                        <div className="flex-1 min-w-0 grid grid-cols-12 gap-2 md:gap-6 items-center">
+                          {/* PO Number */}
+                          <div className="col-span-4 md:col-span-3">
+                            <span className="block text-[8px] md:text-xs text-slate-400 font-bold uppercase tracking-wider mb-0.5 md:mb-1">PO 單號</span>
+                            <span className="block font-black text-sm md:text-2xl text-slate-800 truncate">{order.id}</span>
+                          </div>
+
+                          {/* Ship To */}
+                          <div className="col-span-3 md:col-span-3 border-l border-slate-100 pl-2 md:pl-6">
+                            <span className="block text-[8px] md:text-xs text-slate-400 font-bold uppercase tracking-wider mb-0.5 md:mb-1">出貨地</span>
+                            <span className="block font-bold text-xs md:text-lg text-slate-600 truncate">{order.shipTo || "-"}</span>
+                          </div>
+
+                          {/* Progress */}
+                          <div className="col-span-5 md:col-span-6 border-l border-slate-100 pl-2 md:pl-6 flex flex-col justify-center">
+                            <div className="flex justify-between items-end mb-1 md:mb-2">
+                              <span className="text-[8px] md:text-xs text-slate-400 font-bold uppercase tracking-wider">進度</span>
+                              <div className="flex items-baseline gap-1">
+                                <span className={`font-black text-xs md:text-lg ${order.status === 'SUBMITTED' ? 'text-green-600' : 'text-blue-600'}`}>{progress}%</span>
+                                <span className="text-[8px] md:text-xs text-slate-400 font-medium hidden sm:inline">({doneWOs}/{totalWOs})</span>
+                              </div>
+                            </div>
+                            <div className="w-full h-1.5 md:h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                              <div className={`h-full rounded-full transition-all duration-1000 ${order.status === 'SUBMITTED' ? 'bg-green-500' : 'bg-blue-600'}`} style={{ width: `${progress}%` }} />
+                            </div>
+                          </div>
+                        </div>
+
+                        <ChevronRight className="text-slate-300 w-4 h-4 md:w-6 md:h-6 shrink-0 group-hover:text-blue-500 transition-colors" />
                       </button>
                     );
-                  }) : <div className="col-span-full py-16 md:py-32 text-center text-slate-300"><Filter className="w-8 h-8 md:w-16 md:h-16 mx-auto mb-2 md:mb-6 opacity-30" /><p className="text-xs md:text-2xl font-black">查無資料</p></div>}
+                  }) : <div className="py-16 md:py-32 text-center text-slate-300 flex flex-col items-center"><Filter className="w-8 h-8 md:w-16 md:h-16 mb-2 md:mb-6 opacity-30" /><p className="text-xs md:text-2xl font-black">查無資料</p></div>}
                 </div>
               </div>
             </div>
