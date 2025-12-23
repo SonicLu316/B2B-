@@ -328,7 +328,7 @@ export default function App() {
             <div className="space-y-3 md:space-y-6 mb-6 md:mb-10">
               <div className="space-y-1 md:space-y-2">
                 <label className="text-[10px] md:text-sm font-black text-slate-400 uppercase tracking-widest px-1">出貨地 (ShipTo)</label>
-                <select disabled={isCreating} className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-xl md:rounded-2xl py-2 md:py-4 px-3 md:px-5 font-bold outline-none text-sm md:text-xl appearance-none" value={newShipToInput} onChange={(e) => setNewShipToInput(e.target.value)}>
+                <select disabled={isCreating} className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-xl md:rounded-2xl py-2 md:py-4 px-3 md:px-5 font-bold outline-none text-base md:text-xl appearance-none" value={newShipToInput} onChange={(e) => setNewShipToInput(e.target.value)}>
                   {SHIP_TO_LIST.map(ship => <option key={ship} value={ship}>{ship}</option>)}
                 </select>
               </div>
@@ -481,12 +481,12 @@ export default function App() {
                       ].map(field => (
                         <div key={field.key} className="space-y-1 md:space-y-3">
                           <label className="text-[9px] md:text-sm font-black text-slate-400 uppercase px-1">{field.label}</label>
-                          <input disabled={isSubmitted} type={field.type} value={field.value || ""} onChange={(e) => updateActiveWOField(field.key, e.target.value)} className={`w-full bg-slate-50 border border-transparent focus:border-blue-500 rounded-lg md:rounded-[24px] p-2 md:p-5 text-xs md:text-xl font-black transition-all outline-none ${field.color || ""}`} />
+                          <input disabled={isSubmitted} type={field.type} value={field.value || ""} onChange={(e) => updateActiveWOField(field.key, e.target.value)} className={`w-full bg-slate-50 border border-transparent focus:border-blue-500 rounded-lg md:rounded-[24px] p-2 md:p-5 text-base md:text-xl font-black transition-all outline-none ${field.color || ""}`} />
                         </div>
                       ))}
                       <div className="space-y-1 md:space-y-3">
                         <label className="text-[9px] md:text-sm font-black text-slate-400 uppercase px-1">判定結果</label>
-                        <select disabled={isSubmitted} value={activeWO?.result || "合格"} onChange={(e) => updateActiveWOField('result', e.target.value)} className="w-full bg-slate-50 border border-transparent focus:border-blue-500 rounded-lg md:rounded-[24px] p-2 md:p-5 text-xs md:text-xl font-black outline-none appearance-none cursor-pointer"><option value="合格">合格</option><option value="不合格">不合格</option><option value="待處理">待處理</option></select>
+                        <select disabled={isSubmitted} value={activeWO?.result || "合格"} onChange={(e) => updateActiveWOField('result', e.target.value)} className="w-full bg-slate-50 border border-transparent focus:border-blue-500 rounded-lg md:rounded-[24px] p-2 md:p-5 text-base md:text-xl font-black outline-none appearance-none cursor-pointer"><option value="合格">合格</option><option value="不合格">不合格</option><option value="待處理">待處理</option></select>
                       </div>
                     </div>
                   </section>
@@ -506,7 +506,7 @@ export default function App() {
                       )}
                     </div>
                     <div className="space-y-4 md:space-y-10 pt-4 md:pt-12 border-t border-slate-50">
-                      <div className="space-y-1 md:space-y-4"><label className="text-[9px] md:text-xs font-black text-slate-400 px-1 uppercase tracking-widest flex items-center gap-2"><MessageSquareText className="w-3 h-3 md:w-5 md:h-5 text-blue-500" /> 備註說明</label><textarea disabled={isSubmitted} placeholder="異常紀錄..." className="w-full bg-slate-50 rounded-xl md:rounded-[48px] p-4 md:p-10 text-xs md:text-lg font-bold min-h-[80px] md:min-h-[180px] outline-none shadow-inner resize-none transition-all focus:bg-white" value={activeStep.remarks} onChange={(e) => updateActiveStep({ remarks: e.target.value })} /></div>
+                      <div className="space-y-1 md:space-y-4"><label className="text-[9px] md:text-xs font-black text-slate-400 px-1 uppercase tracking-widest flex items-center gap-2"><MessageSquareText className="w-3 h-3 md:w-5 md:h-5 text-blue-500" /> 備註說明</label><textarea disabled={isSubmitted} placeholder="異常紀錄..." className="w-full bg-slate-50 rounded-xl md:rounded-[48px] p-4 md:p-10 text-base md:text-lg font-bold min-h-[80px] md:min-h-[180px] outline-none shadow-inner resize-none transition-all focus:bg-white" value={activeStep.remarks} onChange={(e) => updateActiveStep({ remarks: e.target.value })} /></div>
                       <button disabled={!activeStep.photoUrl || isSubmitted} onClick={() => updateActiveStep({ checked: !activeStep.checked })} className={`w-full py-3 md:py-10 rounded-xl md:rounded-[48px] font-black text-base md:text-4xl flex items-center justify-center gap-2 md:gap-6 transition-all shadow-md md:shadow-2xl ${activeStep.checked ? 'bg-green-600 text-white shadow-green-100' : 'bg-white text-slate-300 border border-slate-100'}`}>{activeStep.checked ? <CheckCircle2 className="w-5 h-5 md:w-12 md:h-12" /> : <div className="w-4 h-4 md:w-10 md:h-10 rounded-full border-2 md:border-4 border-slate-100" />} {activeStep.checked ? '已確認合格' : '點擊確認本項結果'}</button>
                     </div>
                   </section>
