@@ -27,6 +27,65 @@ const STEPS_PER_WO = [
 
 const SHIP_TO_LIST = ["AS5645", "AS5752", "ASGUS6", "TG0075", "TG0083", "TG0099"];
 
+// TODO: Future: Fetch from database
+const INSPECTION_SPECS = [
+  {
+    id: 1,
+    category: { en: "Package", cn: "包裝", vn: "bao bì bên ngoài" },
+    content: {
+      en: "Check if the packing belt is secure, box is deformed or dirty; Box dimensions: L x W x H",
+      cn: "打包帶：內盒有正確形狀、髒污；內盒長*寬*高。外觀檢查：箱子外觀是否變形、破損、髒污。",
+      vn: "Độ chặt, hỏng của đai đóng gói, hộp không thể bị biến dạng, hư hỏng, bẩn, chiều dài * chiều rộng * chiều cao của hộp bên ngoài"
+    }
+  },
+  {
+    id: 2,
+    category: { en: "male and female box", cn: "內盒", vn: "hộp trong" },
+    content: {
+      en: "The male and female boxes need to be nailed; The appearance must not be deformed, dirty, color differences or damaged.",
+      cn: "天地蓋紙盒，上下蓋需打釘，二側。外觀：變形、髒污、色差、破損。外觀：紙箱外觀，不應有髒污、破損、刮傷、受潮等。",
+      vn: "Các nắp trên và dưới của hộp cần được đóng đinh, hộp có ba lớp. Ngoại hình: biến dạng, bụi bẩn, khác màu, thiếu chất liệu."
+    }
+  },
+  {
+    id: 3,
+    category: { en: "Product label", cn: "產品標籤", vn: "dán nhãn sản phẩm" },
+    content: {
+      en: "White background with red text label, affix to both ends of the box. The content must be accurate.",
+      cn: "*2張，白底紅字，貼於外盒兩側盒蓋正中間，內容及PO#須正確及清晰形貼標（上蓋上方）。",
+      vn: "2 tờ, có chữ màu đỏ trên nền trắng, dán ở giữa nắp hộp và 2 mặt của hộp ngoài, ghi đúng nội dung, PO# và dán nhãn tròn trắng (ở nắp trên)."
+    }
+  },
+  {
+    id: 4,
+    category: { en: "Blind color", cn: "產品顏色", vn: "Sản phẩm hoàn thiện" },
+    content: {
+      en: "The overall color of the blinds must be consistent, with a ΔE ≤ 1 or a visual grade of 4 or higher.",
+      cn: "*整體顏色一致性與標準樣做比對量測數據: ΔE值<1 或目視級4級以上。",
+      vn: "Độ nhất quán của tổng thể so với liệu đo mẫu màu tiêu chuẩn: Giá trị ΔE <1 hoặc cao hơn cấp độ thị giác 4"
+    }
+  },
+  {
+    id: 5,
+    category: { en: "Complete package", cn: "完整包裝", vn: "Tất cả các phụ kiện" },
+    content: {
+      en: "The packaging must include: blinds + wand + valance + valance returns + hardware + EPE protective pads + PE film + cardboard, placed in designated positions.",
+      cn: "*包含有:窗簾 + EPE保護墊 + PE增厚單張 + 頂飾片(含側飾) + 拉繩片轉角組 + 五金盒 +長形紙板放依指定位置。Bag 包含: Blinds+Wand+Valance returns+Hardware+EPE+PE+Paper board...",
+      vn: "Bao gồm: Mành sáo +Đệm mút EPE+Túi PE+ Lá dự bị (gần cây xoay)+ Bộ đầu nối góc lá dự bị+hộp đựng phụ kiện+Các tông dài được đặt vào vị trí được chỉ định."
+    }
+  },
+  {
+    id: 6,
+    category: { en: "Hardware", cn: "五金包", vn: "Bộ phận góc nhỏ" },
+    content: {
+      en: "The hardware box needs to include: Mounting brackets(Left+Right), Center Support Brackets, L connectors, Valance Clip, Bottomrail end cap, screws.",
+      cn: "*1個，內容物數量及規格須確認要求包含有:五金盒，上封套，托架，L型轉角架，飾片支架，下封塞，六角螺絲各數量及規格。",
+      vn: "1 cái, phải xác nhận số lượng và thông số kỹ thuật bên trong, yêu cầu bao gồm: hộp phụ kiện, nắp đậy, giá đỡ, đầu nối góc chữ L, kẹp lá dự bị, nắp chặn ray dưới và vít lục giác."
+    }
+  }
+];
+
+
 const getTodayDate = () => {
   const d = new Date();
   const year = d.getFullYear();
@@ -83,6 +142,8 @@ export default function App() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showSpecModal, setShowSpecModal] = useState(false);
+
   const [newPoInput, setNewPoInput] = useState("");
   const [newShipToInput, setNewShipToInput] = useState(SHIP_TO_LIST[0]);
   const [isCreating, setIsCreating] = useState(false);
@@ -345,6 +406,83 @@ export default function App() {
         </div>
       )}
 
+      {/* 檢驗標準 Modal - 寬版 */}
+      {showSpecModal && (
+        <div className="fixed inset-0 z-[110] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-0 md:p-4 animate-in fade-in duration-300">
+          <div className="bg-white w-full h-full md:max-w-6xl md:h-[85vh] rounded-none md:rounded-[40px] shadow-2xl animate-in zoom-in-95 flex flex-col overflow-hidden">
+            <header className="px-5 py-4 md:px-10 md:py-8 border-b bg-slate-50/50 flex justify-between items-center shrink-0">
+              <div>
+                <h3 className="text-lg md:text-3xl font-black text-slate-800 mb-1">檢驗標準規範</h3>
+                <p className="text-slate-400 text-[10px] md:text-sm font-bold uppercase tracking-wider">Inspection Specification</p>
+              </div>
+              <button onClick={() => setShowSpecModal(false)} className="p-2 md:p-4 bg-slate-100 rounded-full text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-all"><X className="w-5 h-5 md:w-8 md:h-8" /></button>
+            </header>
+
+            <div className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-50 md:bg-white custom-scrollbar">
+
+              {/* Mobile View: Cards */}
+              <div className="md:hidden p-4 space-y-3">
+                {INSPECTION_SPECS.map((spec) => (
+                  <div key={spec.id} className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-3">
+                    <div className="flex justify-between items-start">
+                      <span className="font-black text-2xl text-slate-100">#{spec.id}</span>
+                      <div className="text-right flex-1 ml-4">
+                        <h4 className="font-black text-slate-800 text-lg leading-tight mb-1">{spec.category.cn}</h4>
+                        <div className="flex flex-col items-end gap-0.5">
+                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{spec.category.en}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="pt-3 border-t border-slate-50 space-y-2">
+                      <p className="text-slate-700 font-bold text-sm leading-relaxed text-justify">{spec.content.cn}</p>
+                      <div className="pt-1 space-y-1.5 opacity-80">
+                        {spec.content.en && <p className="text-slate-500 text-xs leading-relaxed">{spec.content.en}</p>}
+                        {spec.content.vn && <p className="text-slate-400 text-[10px] italic leading-relaxed">{spec.content.vn}</p>}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <div className="py-8 text-center text-slate-300 text-[10px] font-bold uppercase tracking-widest">
+                  -- End of List --
+                </div>
+              </div>
+
+              {/* Desktop View: Table */}
+              <div className="hidden md:block min-w-[800px]">
+                <div className="grid grid-cols-[80px_240px_1fr] border-b bg-slate-100 text-slate-500 font-bold text-sm uppercase sticky top-0 z-10 shadow-sm">
+                  <div className="p-5 text-center">No.</div>
+                  <div className="p-5">項目 / Item</div>
+                  <div className="p-5">檢驗內容 / Check Points</div>
+                </div>
+                {INSPECTION_SPECS.map((spec, idx) => (
+                  <div key={spec.id} className={`grid grid-cols-[80px_240px_1fr] border-b hover:bg-blue-50/30 transition-colors group ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}`}>
+                    <div className="p-6 text-center font-black text-slate-300 text-xl group-hover:text-blue-200 transition-colors">{spec.id}</div>
+                    <div className="p-6 flex flex-col justify-center gap-1">
+                      <div className="font-black text-slate-800 text-lg">{spec.category.cn}</div>
+                      <div className="font-bold text-slate-400 text-xs uppercase tracking-wider">{spec.category.en}</div>
+                      <div className="text-slate-300 text-[10px] italic">{spec.category.vn}</div>
+                    </div>
+                    <div className="p-6 flex flex-col gap-2 justify-center">
+                      <p className="text-slate-800 text-base font-medium leading-relaxed">{spec.content.cn}</p>
+                      <div className="pl-4 border-l-2 border-slate-100 space-y-1">
+                        <p className="text-slate-500 text-xs leading-relaxed">{spec.content.en}</p>
+                        <p className="text-slate-400 text-[10px] leading-relaxed italic">{spec.content.vn}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <div className="p-10 text-center text-slate-300 text-xs font-bold uppercase tracking-widest bg-slate-50">
+                  -- Database Connection Required for Full List --
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+
+
+
       {/* Header - 放大 Padding 與文字 */}
       <header className="bg-white border-b px-4 md:px-8 py-2 md:py-4 flex justify-between items-center shadow-sm z-40 relative">
         <div className="flex items-center gap-2 md:gap-4">
@@ -467,7 +605,16 @@ export default function App() {
                   </div>
 
                   <section className="bg-white rounded-[24px] md:rounded-[56px] p-5 md:p-14 shadow-sm border border-white relative overflow-hidden">
-                    <div className="flex items-center justify-between mb-5 md:mb-12 border-b border-slate-50 pb-3 md:pb-8"><div className="flex items-center gap-2 md:gap-4"><FileText className="w-4 h-4 md:w-8 md:h-8 text-blue-600" /><h3 className="font-black text-sm md:text-3xl text-slate-800">工單資訊</h3></div>{!isSubmitted && <button onClick={() => setWoToDelete({ index: activeWoIndex, id: activeWO?.wo_id })} className="p-2 bg-red-50 text-red-500 rounded-lg active:scale-90 md:hidden"><Trash2 size={14} /></button>}</div>
+                    <div className="flex items-center justify-between mb-5 md:mb-12 border-b border-slate-50 pb-3 md:pb-8">
+                      <div className="flex items-center gap-2 md:gap-4"><FileText className="w-4 h-4 md:w-8 md:h-8 text-blue-600" /><h3 className="font-black text-sm md:text-3xl text-slate-800">工單資訊</h3></div>
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => setShowSpecModal(true)} className="px-3 md:px-6 py-1.5 md:py-3 bg-blue-50 text-blue-600 rounded-lg md:rounded-xl font-bold text-[10px] md:text-base hover:bg-blue-100 transition-all flex items-center gap-1.5 cursor-pointer">
+                          <ClipboardList className="w-3.5 h-3.5 md:w-5 md:h-5" /> 檢驗標準
+                        </button>
+                        {!isSubmitted && <button onClick={() => setWoToDelete({ index: activeWoIndex, id: activeWO?.wo_id })} className="p-2 bg-red-50 text-red-500 rounded-lg active:scale-90 md:hidden"><Trash2 size={14} /></button>}
+                      </div>
+                    </div>
+
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-10">
                       {[
                         { label: "客戶編號", value: activeWO?.customer_id, key: "customer_id", type: "text" },
@@ -531,6 +678,6 @@ export default function App() {
           ) : null}
         </main>
       </div>
-    </div>
+    </div >
   );
 }
